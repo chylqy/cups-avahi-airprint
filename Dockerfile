@@ -5,16 +5,29 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
 	cups \
  	cups-bsd \
-	cups-libs \
  	cups-common \
 	cups-pdf \
 	cups-client \
 	cups-filters \
-	cups-dev \
- 	brother-lpr-drivers-extra brother-cups-wrapper-extra \
 	ghostscript \
 	wget \
 	&& rm -rf /var/cache/apk/*
+
+ # 启用 i386 架构并安装基础 32 位库
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libc6:i386 \
+        libstdc++6:i386 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 下载并安装 Brother 打印驱动
+ARG BROTHER_PRINTER_DRIVER_URL="https://download.brother.com/pub/com/linux/linux/packages/dcpt426wpdrv-3.5.0-2.i386.deb"
+ARG BROTHER_PRINTER_DRIVER_FILENAME="dcpt426wpdrv-3.5.0-2.i386.deb"
+
+RUN wget -O /tmp/${BROTHER_PRINTER_DRIVER_FILENAME} ${BROTHER_PRINTER_DRIVER_URL}
+RUN dpkg -i --force-all /tmp/${BROTHER_PRINTER_DRIVER_FILENAME} || apt-get install -fy --no-install-recommends
+RUN rm /tmp/${BROTHER_PRINTER_DRIVER_FILENAME}
 
 # This will use port 631
 EXPOSE 631
