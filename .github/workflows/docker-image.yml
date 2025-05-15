@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master # 当代码推送到 main 分支时触发此 workflow
+  workflow_dispatch:
 
 env:
   # 定义一些环境变量，方便后续步骤使用
@@ -34,8 +35,8 @@ jobs:
           file: ${{ env.DOCKERFILE_PATH }} # Dockerfile 文件路径
           push: true # 设置为 true 表示构建完成后推送镜像
           tags: | # 定义要推送的镜像标签，可以定义多个
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest # 推送 latest 标签
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} # 推送以 commit SHA 为标签的版本
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
 
           # 可选: 启用 GitHub Actions Cache 来加速后续构建
           cache-from: type=gha
