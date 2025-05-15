@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 	cups-client \
 	cups-filters \
 	ghostscript \
- 	avahi \
+ 	avahi-daemon \
 	wget \
 	&& rm -rf /var/cache/apk/*
 
