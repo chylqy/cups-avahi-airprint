@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main # 当代码推送到 main 分支时触发此 workflow
+      - master # 当代码推送到 main 分支时触发此 workflow
 
 env:
   # 定义一些环境变量，方便后续步骤使用
