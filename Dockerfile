@@ -18,6 +18,7 @@ RUN echo -e "https://dl-cdn.alpinelinux.org/alpine/edge/testing\nhttps://dl-cdn.
 	wget \
 	rsync \
 	py3-pycups \
+        perl \
 	&& rm -rf /var/cache/apk/*
 
 # Build and install brlaser from source
