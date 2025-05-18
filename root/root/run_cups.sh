@@ -59,3 +59,7 @@ AVAHI_SERVICE_PID=$!
 # Start CUPS and printer update
 /root/printer-update.sh &
 exec /usr/sbin/cupsd -f
+
+# install the driver of DCT-T426W
+/bin/bash /opt/brother/Printers/dcpt426w/cupswrapper/brother_lpdwrapper_dcpt426w
+/bin/bash /opt/brother/Printers/dcpt426w/cupswrapper/cupswrapperdcpt426w
