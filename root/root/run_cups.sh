@@ -57,8 +57,8 @@ trap cleanup SIGTERM SIGINT
 AVAHI_SERVICE_PID=$!
 
 # install the driver of DCT-T426W
-/bin/sh /opt/brother/Printers/dcpt426w/cupswrapper/brother_lpdwrapper_dcpt426w
-/bin/sh /opt/brother/Printers/dcpt426w/cupswrapper/cupswrapperdcpt426w
+/opt/brother/Printers/dcpt426w/cupswrapper/brother_lpdwrapper_dcpt426w
+/opt/brother/Printers/dcpt426w/cupswrapper/cupswrapperdcpt426w
 
 # Start CUPS and printer update
 /root/printer-update.sh &
