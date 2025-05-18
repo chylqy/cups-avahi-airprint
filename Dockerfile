@@ -43,7 +43,7 @@ RUN wget -O gutenprint-5.3.5.tar.xz https://sourceforge.net/projects/gimp-print/
     rm -rf gutenprint-5.3.5 gutenprint-5.3.5.tar.xz
 
 #复制Brother DCP-T426W的驱动安装包
-ADD opt.tar.gz /opt
+ADD opt.tar.gz /
 
 # This will use port 631
 EXPOSE 631
