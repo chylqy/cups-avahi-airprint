@@ -1,34 +1,49 @@
-FROM debian:stable-slim
-ENV DEBIAN_FRONTEND=noninteractive
+FROM alpine:3.20
 
 # Install the packages we need. Avahi will be included
-RUN apt-get update && apt-get install -y \
-	cups \
- 	cups-bsd \
- 	cups-common \
+RUN echo -e "https://dl-cdn.alpinelinux.org/alpine/edge/testing\nhttps://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories &&\
+	apk add --update cups \
+	cups-libs \
 	cups-pdf \
 	cups-client \
 	cups-filters \
+	cups-dev \
 	ghostscript \
- 	avahi-daemon \
+	hplip \
+	avahi \
+	inotify-tools \
+	python3 \
+	python3-dev \
+	build-base \
 	wget \
+	rsync \
+	py3-pycups \
 	&& rm -rf /var/cache/apk/*
 
- # 启用 i386 架构并安装基础 32 位库
-RUN dpkg --add-architecture i386 && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        libc6:i386 \
-        libstdc++6:i386 \
-    && rm -rf /var/lib/apt/lists/*
+# Build and install brlaser from source
+RUN apk add --no-cache git cmake && \
+    git clone https://github.com/pdewacht/brlaser.git && \
+    cd brlaser && \
+    cmake . && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf brlaser
 
-# 下载并安装 Brother 打印驱动
-ARG BROTHER_PRINTER_DRIVER_URL="https://download.brother.com/pub/com/linux/linux/packages/dcpt426wpdrv-3.5.0-2.i386.deb"
-ARG BROTHER_PRINTER_DRIVER_FILENAME="dcpt426wpdrv-3.5.0-2.i386.deb"
+# Build and install gutenprint from source
+RUN wget -O gutenprint-5.3.5.tar.xz https://sourceforge.net/projects/gimp-print/files/gutenprint-5.3/5.3.5/gutenprint-5.3.5.tar.xz/download && \
+    tar -xJf gutenprint-5.3.5.tar.xz && \
+    cd gutenprint-5.3.5 && \
+    # Patch to rename conflicting PAGESIZE identifiers to GPT_PAGESIZE in all files in src/testpattern
+    find src/testpattern -type f -exec sed -i 's/\bPAGESIZE\b/GPT_PAGESIZE/g' {} + && \
+    ./configure && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && \
+    rm -rf gutenprint-5.3.5 gutenprint-5.3.5.tar.xz
 
-RUN wget -O /tmp/${BROTHER_PRINTER_DRIVER_FILENAME} ${BROTHER_PRINTER_DRIVER_URL}
-RUN dpkg -i --force-all /tmp/${BROTHER_PRINTER_DRIVER_FILENAME} || apt-get install -fy --no-install-recommends
-RUN rm /tmp/${BROTHER_PRINTER_DRIVER_FILENAME}
+#复制Brother DCP-T426W的驱动安装包
+COPY opt /opt
 
 # This will use port 631
 EXPOSE 631
@@ -55,5 +70,5 @@ RUN sed -i 's/Listen localhost:631/Listen 0.0.0.0:631/' /etc/cups/cupsd.conf && 
 	echo "ServerAlias *" >> /etc/cups/cupsd.conf && \
 	echo "DefaultEncryption Never" >> /etc/cups/cupsd.conf && \
 	echo "ReadyPaperSizes A4,TA4,4X6FULL,T4X6FULL,2L,T2L,A6,A5,B5,L,TL,INDEX5,8x10,T8x10,4X7,T4X7,Postcard,TPostcard,ENV10,EnvDL,ENVC6,Letter,Legal" >> /etc/cups/cupsd.conf && \
-	echo "DefaultPaperSize A4" >> /etc/cups/cupsd.conf && \
+	echo "DefaultPaperSize Letter" >> /etc/cups/cupsd.conf && \
 	echo "pdftops-renderer ghostscript" >> /etc/cups/cupsd.conf
